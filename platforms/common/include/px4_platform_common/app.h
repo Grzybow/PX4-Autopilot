@@ -38,35 +38,54 @@
  * main function PX4_MAIN.
  */
 
+
+// 确保这个头文件只被包含一次
 #pragma once
 
+// 定义一个命名空间 px4
 namespace px4
 {
 
+// 声明一个名为 AppState 的类
 class AppState
 {
 public:
-	~AppState() {}
+    // 析构函数，当对象被销毁时调用
+    ~AppState() {}
 
-	AppState() : _exitRequested(false), _isRunning(false) {}
+    // 默认构造函数，初始化_exitRequested和_isRunning为false
+    AppState() : _exitRequested(false), _isRunning(false) {}
 
-	bool exitRequested() { return _exitRequested; }
-	void requestExit() { _exitRequested = true; }
+    // 一个公共方法，用来检查是否请求退出
+    bool exitRequested() { return _exitRequested; }
 
-	bool isRunning() { return _isRunning; }
-	void setRunning(bool running) { _isRunning = running; }
+    // 一个公共方法，用来设置退出请求的状态
+    void requestExit() { _exitRequested = true; }
+
+    // 一个公共方法，用来检查应用程序是否正在运行
+    bool isRunning() { return _isRunning; }
+
+    // 一个公共方法，用来设置应用程序的运行状态
+    void setRunning(bool running) { _isRunning = running; }
 
 protected:
-	bool _exitRequested;
-	bool _isRunning;
+    // 一个保护成员变量，用来跟踪是否有退出请求
+    bool _exitRequested;
+
+    // 一个保护成员变量，用来跟踪应用程序是否正在运行
+    bool _isRunning;
+
 private:
-	AppState(const AppState &);
-	const AppState &operator=(const AppState &);
+    // 禁止使用复制构造函数
+    AppState(const AppState &);
+
+    // 禁止使用赋值运算符
+    const AppState &operator=(const AppState &);
 };
-}
 
-// Task/process based build
+} // namespace px4 结束
 
+// 用于基于任务/进程的构建的宏定义
 #ifdef PX4_MAIN
 extern int PX4_MAIN(int argc, char *argv[]);
 #endif

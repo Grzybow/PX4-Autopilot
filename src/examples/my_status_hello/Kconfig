@@ -1,0 +1,5 @@
+menuconfig EXAMPLES_my_status_hello
+	bool "my_status_hello"
+	default n
+	---help---
+		Enable support for my_status_hello

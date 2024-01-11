@@ -56,73 +56,74 @@ __EXPORT int px4_simple_app_main(int argc, char *argv[]);
 
 int px4_simple_app_main(int argc, char *argv[])
 {
-	PX4_INFO("Hello Sky!");
 
-	/* subscribe to vehicle_acceleration topic */
-	int sensor_sub_fd = orb_subscribe(ORB_ID(vehicle_acceleration));
-	/* limit the update rate to 5 Hz */
-	orb_set_interval(sensor_sub_fd, 200);
+// 输出信息到控制台，显示 "Hello Sky!"。
+PX4_INFO("Hello Sky!");
 
-	/* advertise attitude topic */
-	struct vehicle_attitude_s att;
-	memset(&att, 0, sizeof(att));
-	orb_advert_t att_pub = orb_advertise(ORB_ID(vehicle_attitude), &att);
+// 订阅 vehicle_acceleration 主题，以接收加速度传感器的数据。
+int sensor_sub_fd = orb_subscribe(ORB_ID(vehicle_acceleration));
+// 设置数据更新间隔为 200 毫秒，即每秒更新 5 次。
+orb_set_interval(sensor_sub_fd, 200);
 
-	/* one could wait for multiple topics with this technique, just using one here */
-	px4_pollfd_struct_t fds[] = {
-		{ .fd = sensor_sub_fd,   .events = POLLIN },
-		/* there could be more file descriptors here, in the form like:
-		 * { .fd = other_sub_fd,   .events = POLLIN },
-		 */
-	};
+// 定义并初始化 vehicle_attitude 结构体，用于存储飞行器的姿态信息。
+struct vehicle_attitude_s att;
+// 使用 memset 将 att 结构体的内存区域初始化为 0。
+memset(&att, 0, sizeof(att));
+// 宣告并发布 vehicle_attitude 主题，使用 att 结构体作为数据。
+orb_advert_t att_pub = orb_advertise(ORB_ID(vehicle_attitude), &att);
 
-	int error_counter = 0;
+// 定义一个 px4_pollfd_struct_t 类型的数组，用于后续的轮询操作。
+px4_pollfd_struct_t fds[] = {
+    { .fd = sensor_sub_fd,   .events = POLLIN }, // 将 sensor_sub_fd 文件描述符加入轮询列表，关注 POLLIN 事件。
+    // 可以添加更多文件描述符和事件。
+};
 
-	for (int i = 0; i < 5; i++) {
-		/* wait for sensor update of 1 file descriptor for 1000 ms (1 second) */
-		int poll_ret = px4_poll(fds, 1, 1000);
+// 定义错误计数器，用于跟踪轮询过程中的错误次数。
+int error_counter = 0;
 
-		/* handle the poll result */
-		if (poll_ret == 0) {
-			/* this means none of our providers is giving us data */
-			PX4_ERR("Got no data within a second");
+// 开始一个循环，循环 5 次。
+for (int i = 0; i < 5; i++) {
+    // 调用 px4_poll 函数，等待最多 1000 毫秒来检查是否有数据更新。
+    int poll_ret = px4_poll(fds, 1, 1000);
 
-		} else if (poll_ret < 0) {
-			/* this is seriously bad - should be an emergency */
-			if (error_counter < 10 || error_counter % 50 == 0) {
-				/* use a counter to prevent flooding (and slowing us down) */
-				PX4_ERR("ERROR return value from poll(): %d", poll_ret);
-			}
+    // 根据 px4_poll 的返回值处理不同的情况。
+    if (poll_ret == 0) {
+        // 如果返回 0，表示在指定时间内没有任何数据更新。
+        PX4_ERR("Got no data within a second");
 
-			error_counter++;
+    } else if (poll_ret < 0) {
+        // 如果返回值小于 0，表示发生了错误。
+        // 使用计数器限制错误消息的频率。
+        if (error_counter < 10 || error_counter % 50 == 0) {
+            // 输出错误信息，包括 poll 返回的具体错误值。
+            PX4_ERR("ERROR return value from poll(): %d", poll_ret);
+        }
+        // 错误计数器递增。
+        error_counter++;
 
-		} else {
+    } else {
+        // 如果返回值大于 0，表示有数据更新。
+        if (fds[0].revents & POLLIN) {
+            // 检查第一个文件描述符是否有数据更新。
+            struct vehicle_acceleration_s accel; // 定义加速度数据结构体。
+            // 从 ORB 中复制加速度数据到 accel 结构体中。
+            orb_copy(ORB_ID(vehicle_acceleration), sensor_sub_fd, &accel);
+            // 输出加速度数据。
+            PX4_INFO("Accelerometer:\t%8.4f\t%8.4f\t%8.4f",
+                     (double)accel.xyz[0],
+                     (double)accel.xyz[1],
+                     (double)accel.xyz[2]);
 
-			if (fds[0].revents & POLLIN) {
-				/* obtained data for the first file descriptor */
-				struct vehicle_acceleration_s accel;
-				/* copy sensors raw data into local buffer */
-				orb_copy(ORB_ID(vehicle_acceleration), sensor_sub_fd, &accel);
-				PX4_INFO("Accelerometer:\t%8.4f\t%8.4f\t%8.4f",
-					 (double)accel.xyz[0],
-					 (double)accel.xyz[1],
-					 (double)accel.xyz[2]);
-
-				/* set att and publish this information for other apps
-				 the following does not have any meaning, it's just an example
-				*/
-				att.q[0] = accel.xyz[0];
-				att.q[1] = accel.xyz[1];
-				att.q[2] = accel.xyz[2];
-
-				orb_publish(ORB_ID(vehicle_attitude), att_pub, &att);
-			}
-
-			/* there could be more file descriptors here, in the form like:
-			 * if (fds[1..n].revents & POLLIN) {}
-			 */
-		}
-	}
+            // 示例操作：将加速度数据赋值给姿态数据的某些字段。
+            att.q[0] = accel.xyz[0];
+            att.q[1] = accel.xyz[1];
+            att.q[2] = accel.xyz[2];
+            // 发布更新后的姿态信息。
+            orb_publish(ORB_ID(vehicle_attitude), att_pub, &att);
+        }
+        // 这里可以处理更多的文件描述符。
+    }
+}
 
 	PX4_INFO("exiting");
 

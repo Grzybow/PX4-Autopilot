@@ -39,54 +39,66 @@
 
 namespace px4
 {
-
+// 定义一个名为 ScheduledWorkItem 的类，继承自 WorkItem 类。
 class ScheduledWorkItem : public WorkItem
 {
 public:
 
-	bool Scheduled() { return !hrt_called(&_call); }
+    // 检查是否已经安排了工作项。如果没有调用，则返回 true。
+    bool Scheduled() { return !hrt_called(&_call); }
 
-	/**
-	 * Schedule next run with a delay in microseconds.
-	 *
-	 * @param delay_us		The delay in microseconds.
-	 */
-	void ScheduleDelayed(uint32_t delay_us);
+    /**
+     * ScheduleDelayed 方法：
+     * 安排下一次运行，并延迟一定的微秒数。
+     *
+     * @param delay_us		延迟的时间，以微秒为单位。
+     */
+    void ScheduleDelayed(uint32_t delay_us);
 
-	/**
-	 * Schedule repeating run with optional delay.
-	 *
-	 * @param interval_us		The interval in microseconds.
-	 * @param delay_us		The delay (optional) in microseconds.
-	 */
-	void ScheduleOnInterval(uint32_t interval_us, uint32_t delay_us = 0);
+    /**
+     * ScheduleOnInterval 方法：
+     * 安排重复运行，可选延迟。
+     *
+     * @param interval_us	运行间隔时间，以微秒为单位。
+     * @param delay_us		延迟的时间（可选），以微秒为单位，默认为 0。
+     */
+    void ScheduleOnInterval(uint32_t interval_us, uint32_t delay_us = 0);
 
-	/**
-	 * Schedule next run at a specific time.
-	 *
-	 * @param time_us		The time in microseconds.
-	 */
-	void ScheduleAt(hrt_abstime time_us);
+    /**
+     * ScheduleAt 方法：
+     * 在特定时间安排下一次运行。
+     *
+     * @param time_us		特定的时间，以微秒为单位。
+     */
+    void ScheduleAt(hrt_abstime time_us);
 
-	/**
-	 * Clear any scheduled work.
-	 */
-	void ScheduleClear();
+    /**
+     * ScheduleClear 方法：
+     * 清除所有已安排的工作。
+     */
+    void ScheduleClear();
 
 protected:
 
-	ScheduledWorkItem(const char *name, const wq_config_t &config) : WorkItem(name, config) {}
-	virtual ~ScheduledWorkItem() override;
+    // ScheduledWorkItem 的构造函数。初始化 WorkItem。
+    ScheduledWorkItem(const char *name, const wq_config_t &config) : WorkItem(name, config) {}
 
-	virtual void print_run_status() override;
+    // ScheduledWorkItem 的虚析构函数。
+    virtual ~ScheduledWorkItem() override;
+
+    // 用于打印运行状态的虚函数。
+    virtual void print_run_status() override;
 
 private:
 
-	virtual void Run() override = 0;
+    // 纯虚函数 Run，子类必须实现这个方法。
+    virtual void Run() override = 0;
 
-	static void	schedule_trampoline(void *arg);
+    // 静态函数，用作调度的跳板函数。
+    static void	schedule_trampoline(void *arg);
 
-	hrt_call	_call{};
+    // hrt_call 类型的成员变量，用于管理调度。
+    hrt_call	_call{};
 };
 
 } // namespace px4

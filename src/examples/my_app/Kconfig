@@ -1,5 +1,6 @@
 menuconfig EXAMPLES_MY_APP
-	bool "MY_APP"
+	bool "my_app"
 	default n
 	---help---
-		Enable support for MY_APP
+		Enable support for my_app
+

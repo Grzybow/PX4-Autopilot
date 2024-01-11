@@ -32,67 +32,32 @@
  ****************************************************************************/
 
 /**
- * @file hello_start_posix.cpp
+ * @file hello_example.h
+ * Example app for Linux
  *
- * @author Thomas Gubler <thomasgubler@gmail.com>
- * @author Mark Charlebois <mcharleb@gmail.com>
+ * @author Mark Charlebois <charlebm@gmail.com>
  */
-#include "hello_example.h"
 
-#include <px4_platform_common/log.h>
+// 防止同一个头文件被多次包含。这是一个常见的 C++ 技巧，确保编译器只处理一次头文件。
+#pragma once
+
+// 包含 PX4 平台的应用程序接口头文件。这允许使用 PX4 特定的应用程序功能。
 #include <px4_platform_common/app.h>
-#include <px4_platform_common/tasks.h>
-#include <stdio.h>
-#include <string.h>
-#include <sched.h>
 
-static int daemon_task;             /* Handle of deamon task / thread */
-
-//using namespace px4;
-
-extern "C" __EXPORT int hello_main(int argc, char *argv[]);
-int hello_main(int argc, char *argv[])
+// 定义一个名为 HelloExample 的类。
+class HelloExample
 {
+public:
+    // 类构造函数。此处为空，但可用于初始化代码。
+    HelloExample() {}
 
-	if (argc < 2) {
-		PX4_WARN("usage: hello {start|stop|status}\n");
-		return 1;
-	}
+    // 类析构函数。此处为空，但可用于清理代码。
+    ~HelloExample() {}
 
-	if (!strcmp(argv[1], "start")) {
+    // 主函数声明。这是类的主要入口点。
+    int main();
 
-		if (HelloExample::appState.isRunning()) {
-			PX4_INFO("already running\n");
-			/* this is not an error */
-			return 0;
-		}
-
-		daemon_task = px4_task_spawn_cmd("hello",
-						 SCHED_DEFAULT,
-						 SCHED_PRIORITY_MAX - 5,
-						 2000,
-						 PX4_MAIN,
-						 (argv) ? (char *const *)&argv[2] : (char *const *)nullptr);
-
-		return 0;
-	}
-
-	if (!strcmp(argv[1], "stop")) {
-		HelloExample::appState.requestExit();
-		return 0;
-	}
-
-	if (!strcmp(argv[1], "status")) {
-		if (HelloExample::appState.isRunning()) {
-			PX4_INFO("is running\n");
-
-		} else {
-			PX4_INFO("not started\n");
-		}
-
-		return 0;
-	}
-
-	PX4_WARN("usage: hello_main {start|stop|status}\n");
-	return 1;
-}
+    // 静态成员变量，用于跟踪应用程序状态。这是 PX4 应用程序的常见模式，
+    // 允许在整个应用程序中访问和修改应用程序状态。
+    static px4::AppState appState; /* track requests to terminate app */
+};

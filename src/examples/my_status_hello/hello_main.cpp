@@ -1,4 +1,3 @@
-
 /****************************************************************************
  *
  *   Copyright (C) 2015 Mark Charlebois. All rights reserved.
@@ -33,31 +32,37 @@
  ****************************************************************************/
 
 /**
- * @file hello_example.cpp
+ * @file hello_main.cpp
  * Example for Linux
  *
  * @author Mark Charlebois <charlebm@gmail.com>
  */
 
 #include "hello_example.h"
-#include <px4_platform_common/time.h>
-#include <unistd.h>
+
+#include <px4_platform_common/app.h>
+#include <px4_platform_common/init.h>
 #include <stdio.h>
 
-px4::AppState HelloExample::appState;
-
-int HelloExample::main()
+// 定义 PX4 主函数。这是应用程序的入口点。
+int PX4_MAIN(int argc, char **argv)
 {
-	appState.setRunning(true);
+    // 初始化 PX4 应用程序。这通常包括设置任务名称和解析命令行参数。
+    // "hello" 是这个应用程序的名称。
+    px4::init(argc, argv, "hello");
 
-	int i = 0;
+    // 打印 "hello" 到控制台。这是一个简单的消息，表明程序已开始执行。
+    printf("hello\n");
 
-	while (!appState.exitRequested() && i < 5) {
-		px4_sleep(2);
+    // 创建 HelloExample 类的一个实例。这个类封装了应用程序的逻辑。
+    HelloExample hello;
 
-		printf("  Doing work...\n");
-		++i;
-	}
+    // 调用 HelloExample 实例的 main 方法。这里是应用程序逻辑的主要部分。
+    hello.main();
 
-	return 0;
+    // 执行完 main 方法后，打印 "goodbye" 消息，表明程序即将结束。
+    printf("goodbye\n");
+
+    // 返回 0，表示程序正常退出。
+    return 0;
 }

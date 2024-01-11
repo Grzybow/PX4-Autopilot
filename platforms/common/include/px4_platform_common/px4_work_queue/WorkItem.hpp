@@ -44,96 +44,114 @@
 #include <lib/perf/perf_counter.h>
 
 #include <string.h>
-
+// 命名空间 px4
 namespace px4
 {
 
-class WorkItem : public IntrusiveSortedListNode<WorkItem *>, public IntrusiveQueueNode<WorkItem *>
-{
-public:
+    // 定义 WorkItem 类，继承自 IntrusiveSortedListNode 和 IntrusiveQueueNode
+    class WorkItem : public IntrusiveSortedListNode<WorkItem *>, public IntrusiveQueueNode<WorkItem *>
+    {
+    public:
 
-	WorkItem() = delete;
+        // 删除默认构造函数
+        WorkItem() = delete;
 
-	// no copy, assignment, move, move assignment
-	WorkItem(const WorkItem &) = delete;
-	WorkItem &operator=(const WorkItem &) = delete;
-	WorkItem(WorkItem &&) = delete;
-	WorkItem &operator=(WorkItem &&) = delete;
+        // 禁止拷贝构造、赋值、移动构造和移动赋值
+        WorkItem(const WorkItem &) = delete;
+        WorkItem &operator=(const WorkItem &) = delete;
+        WorkItem(WorkItem &&) = delete;
+        WorkItem &operator=(WorkItem &&) = delete;
 
-	// WorkItems sorted by name
-	bool operator<=(const WorkItem &rhs) const { return (strcmp(ItemName(), rhs.ItemName()) <= 0); }
+        // 重载 <= 操作符，用于根据名称排序 WorkItems
+        bool operator<=(const WorkItem &rhs) const { return (strcmp(ItemName(), rhs.ItemName()) <= 0); }
 
-	inline void ScheduleNow()
-	{
-		if (_wq != nullptr) {
-			_wq->Add(this);
-		}
-	}
+        // 立即安排工作项执行的函数
+        inline void ScheduleNow()
+        {
+            if (_wq != nullptr) {
+                _wq->Add(this);
+            }
+        }
 
-	virtual void print_run_status();
+        // 用于打印运行状态的虚函数
+        virtual void print_run_status();
 
-	/**
-	 * Switch to a different WorkQueue.
-	 * NOTE: Caller is responsible for synchronization.
-	 *
-	 * @param config The WorkQueue configuration (see WorkQueueManager.hpp).
-	 * @return true if initialization was successful
-	 */
-	bool ChangeWorkQueue(const wq_config_t &config) { return Init(config); }
+        /**
+         * 改变工作队列的函数。
+         * 注意：调用者负责同步。
+         *
+         * @param config 工作队列配置（见 WorkQueueManager.hpp）。
+         * @return 如果初始化成功返回 true
+         */
+        bool ChangeWorkQueue(const wq_config_t &config) { return Init(config); }
 
-	const char *ItemName() const { return _item_name; }
+        // 获取工作项名称的函数
+        const char *ItemName() const { return _item_name; }
 
-protected:
+    protected:
 
-	explicit WorkItem(const char *name, const wq_config_t &config);
+        // 有参构造函数
+        explicit WorkItem(const char *name, const wq_config_t &config);
 
-	explicit WorkItem(const char *name, const WorkItem &work_item);
+        // 复制构造函数
+        explicit WorkItem(const char *name, const WorkItem &work_item);
 
-	virtual ~WorkItem();
+        // 虚析构函数
+        virtual ~WorkItem();
 
-	/**
-	 * Remove work item from the runnable queue, if it's there
-	 */
-	void ScheduleClear();
-protected:
+        /**
+         * 从可运行队列中移除工作项的函数（如果存在）
+         */
+        void ScheduleClear();
+    protected:
 
-	void RunPreamble()
-	{
-		if (_run_count == 0) {
-			_time_first_run = hrt_absolute_time();
-			_run_count = 1;
+        // 运行前的准备函数
+        void RunPreamble()
+        {
+            if (_run_count == 0) {
+                _time_first_run = hrt_absolute_time();
+                _run_count = 1;
 
-		} else {
-			_run_count++;
-		}
-	}
+            } else {
+                _run_count++;
+            }
+        }
 
-	friend void WorkQueue::Run();
-	virtual void Run() = 0;
+        // 友元函数，允许 WorkQueue 调用 Run
+        friend void WorkQueue::Run();
+        // 纯虚函数 Run，派生类必须实现
+        virtual void Run() = 0;
 
-	/**
-	 * Initialize WorkItem given a WorkQueue config. This call
-	 * can also be used to switch to a different WorkQueue.
-	 * NOTE: Caller is responsible for synchronization.
-	 *
-	 * @param config The WorkQueue configuration (see WorkQueueManager.hpp).
-	 * @return true if initialization was successful
-	 */
-	bool Init(const wq_config_t &config);
-	void Deinit();
+        /**
+         * 根据工作队列配置初始化 WorkItem 的函数。
+         * 也可以用于切换到不同的工作队列。
+         * 注意：调用者负责同步。
+         *
+         * @param config 工作队列配置（见 WorkQueueManager.hpp）。
+         * @return 如果初始化成功返回 true
+         */
+        bool Init(const wq_config_t &config);
+        void Deinit();
 
-	float elapsed_time() const;
-	float average_rate() const;
-	float average_interval() const;
+        // 计算已运行时间的函数
+        float elapsed_time() const;
+        // 计算平均速率的函数
+        float average_rate() const;
+        // 计算平均间隔时间的函数
+        float average_interval() const;
 
-	hrt_abstime	_time_first_run{0};
-	const char 	*_item_name;
-	uint32_t	_run_count{0};
+        // 第一次运行时间
+        hrt_abstime	_time_first_run{0};
+        // 工作项名称
+        const char 	*_item_name;
+        // 运行次数
+        uint32_t	_run_count{0};
 
-private:
+    private:
 
-	WorkQueue	*_wq{nullptr};
+        // 指向工作队列的指针
+        WorkQueue	*_wq{nullptr};
 
-};
+    };
+}
 
-} // namespace px4

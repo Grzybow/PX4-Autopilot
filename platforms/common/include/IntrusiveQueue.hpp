@@ -34,7 +34,6 @@
 #pragma once
 
 #include <stdlib.h>
-#include <cstdio>  // 或者 #include <stdio.h>
 
 template<class T>
 class IntrusiveQueue
@@ -52,11 +51,9 @@ public:
 
 		for (auto node = front(); node != nullptr; node = node->next_intrusive_queue_node()) {
 			sz++;
-
 		}
-		printf("%zu\n", sz);
-		return sz;
 
+		return sz;
 	}
 
 	void push(T newNode)
