@@ -1,0 +1,5 @@
+menuconfig EXAMPLES_my_intrusivequeue
+	bool "my_intrusivequeue"
+	default n
+	---help---
+		Enable support for my_intrusivequeue

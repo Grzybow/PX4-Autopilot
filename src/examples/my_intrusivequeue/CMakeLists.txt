@@ -30,14 +30,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ############################################################################
-
 px4_add_module(
-	MODULE examples__hello
-	MAIN hello
+	MODULE examples__my_intrusivequeue
+	MAIN my_intrusivequeue
 	COMPILE_FLAGS
 	SRCS
-		hello_main.cpp
-		hello_start.cpp
-		hello_example.cpp
+		my_intrusivequeue_main.cpp
+		my_intrusivequeue_example.cpp
+		my_intrusivequeue.h
+
 	DEPENDS
 	)

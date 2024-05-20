@@ -31,24 +31,30 @@
  *
  ****************************************************************************/
 
-/**
- * @file hello_example.h
- * Example app for Linux
- *
- * @author Mark Charlebois <charlebm@gmail.com>
- */
+
+
+// 防止同一个头文件被多次包含。这是一个常见的 C++ 技巧，确保编译器只处理一次头文件。
 #pragma once
 
-#include <px4_platform_common/app.h>
+#include <containers/IntrusiveQueue.hpp>
+#include <string>
 
-class HelloExample
-{
+class Task : public IntrusiveQueueNode<Task*> {
+
 public:
-	HelloExample() {}
+    int taskId;
+    std::string taskName;
 
-	~HelloExample() {}
+    Task(int id, std::string name) : taskId(id), taskName(name) {}
+    ~Task() {}
 
-	int main();
+    int main();
 
-	static px4::AppState appState; /* track requests to terminate app */
+
+
 };
+
+
+
+
+

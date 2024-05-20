@@ -31,27 +31,20 @@
  *
  ****************************************************************************/
 
-/**
- * @file hello_main.cpp
- * Example for Linux
- *
- * @author Mark Charlebois <charlebm@gmail.com>
- */
 
-#include "hello_example.h"
 
-#include <px4_platform_common/app.h>
-#include <px4_platform_common/init.h>
-#include <stdio.h>
+#include "my_intrusivequeue.h"
+#include <px4_platform_common/log.h>
 
-int PX4_MAIN(int argc, char **argv)
+
+
+
+
+// 定义主函数，这是模块的入口点。
+int Task::main()
 {
-	px4::init(argc, argv, "hello");
+	PX4_INFO("Hello Hello Hello Sky!");
 
-	printf("hello\n");
-	HelloExample hello;
-	hello.main();
-
-	printf("goodbye\n");
+	// 返回 0，表示程序正常退出。
 	return 0;
 }

@@ -1,6 +1,7 @@
+
 /****************************************************************************
  *
- *   Copyright (c) 2012-2022 PX4 Development Team. All rights reserved.
+ *   Copyright (C) 2015 Mark Charlebois. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,20 +32,48 @@
  *
  ****************************************************************************/
 
-
- /**
- * @file px4_simple_app.c
- * Minimal application example for PX4 autopilot
+/**
+ * @file hello_example.cpp
+ * Example for Linux
  *
- * @author Example User <mail@example.com>
+ * @author Mark Charlebois <charlebm@gmail.com>
  */
 
-#include <px4_platform_common/log.h>
+// 包含模块特定的头文件。这通常包含类的声明或其他相关定义。
+#include "hello_example.h"
 
-__EXPORT int my_app_main(int argc, char *argv[]);
+// 包含 PX4 平台的时间处理功能。用于实现延时等功能。
+#include <px4_platform_common/time.h>
 
-int my_app_main(int argc, char *argv[])
+// 包含 unistd.h 以提供标准的系统调用和库函数，如 sleep。
+#include <unistd.h>
+
+// 包含标准输入输出库，用于 printf 等函数。
+#include <stdio.h>
+
+// 创建一个静态 AppState 实例。这个实例用于管理应用程序的状态。
+px4::AppState HelloExample::appState;
+
+// 定义主函数，这是模块的入口点。
+int HelloExample::main()
 {
-	PX4_INFO("Hello Hello Hello Sky!");
-	return OK;
+    // 设置应用程序状态为正在运行。
+    appState.setRunning(true);
+
+    // 初始化一个计数器。
+    int i = 0;
+
+    // 使用循环执行重复工作。条件是没有退出请求并且循环次数小于5。
+    while ((!appState.exitRequested()) && i < 999) {
+        // 让程序休眠2秒。px4_sleep 函数提供了与操作系统无关的休眠功能。
+        px4_sleep(1);
+
+        // 打印工作信息。这里的工作是示例性的，实际工作内容可以根据需要变化。
+        printf("  Doing work...\n");
+        // 增加计数器。
+        ++i;
+    }
+
+    // 返回 0 表示程序正常结束。这是通用的成功退出代码。
+    return 0;
 }
