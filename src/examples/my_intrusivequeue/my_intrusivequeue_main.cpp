@@ -49,7 +49,7 @@
 #include <chrono>
 
 void testQueuePerformance() {
-    const int numElements = 100000000; // 测试的元素数量
+    const int numElements = 10000000; // 测试的元素数量
 
     // 测试 IntrusiveQueue
     IntrusiveQueue<Task*> intrusiveQueue;

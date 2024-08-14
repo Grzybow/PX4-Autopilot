@@ -99,6 +99,8 @@ if(gz-transport_FOUND)
 	foreach(gz_airframe IN LISTS gz_airframes)
 		set(model_only)
 		string(REGEX REPLACE ".*_gz_" "" model_only ${gz_airframe})
+		message(WARNING "${model_only}")
+
 
 		if(EXISTS "${PX4_SOURCE_DIR}/Tools/simulation/gz/models/${model_only}")
 

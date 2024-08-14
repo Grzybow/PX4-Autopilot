@@ -1,0 +1,6 @@
+menuconfig EXAMPLES_my_uorb_test
+	bool "my_uorb_test"
+	default n
+	---help---
+		Enable support for my_uorb_test
+
